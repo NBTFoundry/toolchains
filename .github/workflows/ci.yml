@@ -122,14 +122,9 @@ jobs:
         shell: ${{ matrix.shell }}
     steps:
       - uses: actions/checkout@v4
-      - uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SDK_DEPLOY_KEY }}
       - name: sdk
         shell: bash
-        run: |
-          git submodule update --init --depth 1 tests/sdk
-          cd tests/sdk && ../../scripts/ci-fetch.sh
+        run: scripts/ci-fetch.sh --recursive tests/sdk
       - if: runner.os == 'macOS'
         shell: bash
         run: brew install make

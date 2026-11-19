@@ -48,10 +48,6 @@ until its sources or configuration change), the runtime once, the three
 archives, and then builds the SDK's payloads with each archive on its own
 host. The payloads must come out byte-identical on all three.
 
-The SDK is private: the test job reads it with a read-only deploy key (the
-`SDK_DEPLOY_KEY` secret here, whose public half is a deploy key on
-NBTFoundry/sdk), and `tests/sdk` only checks out for organization members.
-
 To release: bump `VERSION`, update `tests/sdk` if needed, merge, then push the
 tag `v<VERSION>`. The tag's run publishes the archives and `SHA256SUMS` once
 every test passes. Then, in the SDK, set `NBT_TOOLCHAIN_VERSION` in
