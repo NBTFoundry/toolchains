@@ -26,7 +26,7 @@ jobs:
       matrix:
         include:
           - { host: linux-x86_64, os: ubuntu-24.04 }
-          - { host: macos-arm64, os: macos-14 }
+          - { host: macos-arm64, os: macos-15 }
           - { host: windows-x86_64, os: windows-2022 }
     runs-on: ${{ matrix.os }}
     timeout-minutes: 340
@@ -114,7 +114,7 @@ jobs:
       matrix:
         include:
           - { host: linux-x86_64, os: ubuntu-24.04, shell: bash, make: make }
-          - { host: macos-arm64, os: macos-14, shell: bash, make: gmake }
+          - { host: macos-arm64, os: macos-15, shell: bash, make: gmake }
           - { host: windows-x86_64, os: windows-2022, shell: "msys2 {0}", make: make }
     runs-on: ${{ matrix.os }}
     defaults:
