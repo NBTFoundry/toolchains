@@ -1,0 +1,12 @@
+[submodule "third_party/llvm-project"]
+	path = third_party/llvm-project
+	url = git@github.com:llvm/llvm-project.git
+	shallow = true
+[submodule "third_party/picolibc"]
+	path = third_party/picolibc
+	url = git@github.com:picolibc/picolibc.git
+	shallow = true
+[submodule "tests/sdk"]
+	path = tests/sdk
+	url = git@github.com:NBTFoundry/sdk.git
+	shallow = true

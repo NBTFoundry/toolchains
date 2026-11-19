@@ -1,0 +1,208 @@
+# SPDX-License-Identifier: MPL-2.0
+# Build the toolchain for every host, test each by building the SDK's test
+# payloads with it (all hosts must produce the same bytes), and on a v* tag
+# publish the archives as a GitHub release.
+name: ci
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+jobs:
+  llvm:
+    name: llvm ${{ matrix.host }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { host: linux-x86_64, os: ubuntu-24.04 }
+          - { host: macos-arm64, os: macos-14 }
+          - { host: windows-x86_64, os: windows-2022 }
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 340
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      # LLVM is rebuilt only when its sources or configuration change.
+      - id: key
+        run: >-
+          echo "key=llvm-${{ matrix.host }}-$(git rev-parse HEAD:third_party/llvm-project)-${{
+          hashFiles('cmake/llvm.cmake', 'scripts/build-llvm.sh', 'scripts/linux.Dockerfile') }}" >> "$GITHUB_OUTPUT"
+      - id: cache
+        uses: actions/cache@v4
+        with:
+          path: out/llvm-${{ matrix.host }}
+          key: ${{ steps.key.outputs.key }}
+      - if: steps.cache.outputs.cache-hit != 'true'
+        run: scripts/ci-fetch.sh third_party/llvm-project
+      - if: steps.cache.outputs.cache-hit != 'true' && runner.os == 'macOS'
+        run: brew install ninja
+      - if: steps.cache.outputs.cache-hit != 'true' && runner.os == 'Windows'
+        run: choco install ninja -y --no-progress
+      - if: steps.cache.outputs.cache-hit != 'true' && runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+      - if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          if [ "$RUNNER_OS" = Linux ]; then run=scripts/linux-run.sh; else run=; fi
+          $run scripts/build-llvm.sh out/llvm-build out/llvm-${{ matrix.host }}
+      # Artifacts drop symbolic links and modes: carry a tar.
+      - run: tar -cf llvm-${{ matrix.host }}.tar -C out llvm-${{ matrix.host }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: llvm-${{ matrix.host }}
+          path: llvm-${{ matrix.host }}.tar
+          retention-days: 7
+
+  runtime:
+    needs: llvm
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: scripts/ci-fetch.sh third_party/llvm-project third_party/picolibc
+      - uses: actions/download-artifact@v4
+        with:
+          name: llvm-linux-x86_64
+      - run: mkdir -p out && tar -xf llvm-linux-x86_64.tar -C out
+      - run: scripts/linux-run.sh scripts/build-runtime.sh out/llvm-linux-x86_64/bin out/runtime-build out/runtime
+      - run: tar -cf runtime.tar -C out runtime
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runtime
+          path: runtime.tar
+          retention-days: 7
+
+  package:
+    needs: [llvm, runtime]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: scripts/ci-fetch.sh third_party/llvm-project third_party/picolibc
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - run: mkdir -p out && for t in artifacts/*/*.tar; do tar -xf "$t" -C out; done
+      - run: |
+          for host in linux-x86_64 macos-arm64 windows-x86_64; do
+            python3 scripts/package.py --host $host --llvm out/llvm-$host --runtime out/runtime --out out/dist
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: |
+            out/dist/*.tar.xz
+            out/dist/*.zip
+            out/dist/*.sha256
+          retention-days: 30
+
+  test:
+    name: test ${{ matrix.host }}
+    needs: package
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { host: linux-x86_64, os: ubuntu-24.04, shell: bash, make: make }
+          - { host: macos-arm64, os: macos-14, shell: bash, make: gmake }
+          - { host: windows-x86_64, os: windows-2022, shell: "msys2 {0}", make: make }
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SDK_DEPLOY_KEY }}
+      - name: sdk
+        shell: bash
+        run: |
+          git submodule update --init --depth 1 tests/sdk
+          cd tests/sdk && ../../scripts/ci-fetch.sh
+      - if: runner.os == 'macOS'
+        shell: bash
+        run: brew install make
+      - if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MSYS
+          update: false
+          install: make python
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: unpack
+        run: |
+          mkdir -p out/toolchain
+          for a in dist/nbt-toolchain-*-${{ matrix.host }}.*; do
+            case "$a" in
+            *.sha256) ;;
+            *.zip) python3 -m zipfile -e "$a" out/toolchain ;;
+            *) tar -xJf "$a" -C out/toolchain ;;
+            esac
+          done
+      - run: MAKE=${{ matrix.make }} scripts/test-sdk.sh out/toolchain/nbt-toolchain-$(cat VERSION) tests/sdk out/test
+      - uses: actions/upload-artifact@v4
+        with:
+          name: payloads-${{ matrix.host }}
+          path: out/test/payloads.sha256
+
+  identical:
+    needs: test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: payloads-*
+          path: payloads
+      - run: |
+          for f in payloads/*/payloads.sha256; do
+            echo "== $f"
+            diff -u payloads/payloads-linux-x86_64/payloads.sha256 "$f"
+          done
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [package, identical]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(cat VERSION)
+          if [ "$GITHUB_REF_NAME" != "v$version" ]; then
+            echo "tag $GITHUB_REF_NAME does not match VERSION $version" >&2
+            exit 1
+          fi
+          cd dist
+          cat *.sha256 > SHA256SUMS
+          {
+            echo "Clang and LLD for NBT modules and guests, with their runtime. Hosts: Linux x86-64"
+            echo "(glibc 2.28 or newer), macOS 11 or newer on Apple silicon, Windows x86-64."
+            echo "The SDK's \`make toolchain\` installs the version it is pinned to."
+            echo
+            echo '```'
+            tar -xOJf "nbt-toolchain-$version-linux-x86_64.tar.xz" "nbt-toolchain-$version/VERSION" | grep -v '^host '
+            echo '```'
+          } > notes.md
+          gh release create "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" --title "NBT toolchain $version" \
+            --notes-file notes.md nbt-toolchain-* SHA256SUMS
