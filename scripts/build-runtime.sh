@@ -108,6 +108,10 @@ EOF
     "$LLVM_BIN/clang" --target=$TRIPLE $FLAGS $DEFS $LIBC_INC -O2 -std=gnu11 -fvisibility=hidden -I"$SRC/compiler-rt/lib/builtins" \
         -c "$SRC/compiler-rt/lib/builtins/emutls.c" -o "$W/emutls.o"
     "$LLVM_BIN/llvm-ar" rs "$V/builtins/libclang_rt.builtins.a" "$W/emutls.o"
+    # A bare-metal __clear_cache aborts: the module runtime has the real one
+    # (the host's instruction cache flush), so code linked without it fails to
+    # link instead of aborting when it first flushes.
+    "$LLVM_BIN/llvm-ar" d "$V/builtins/libclang_rt.builtins.a" clear_cache.c.obj
 
     # --- libc++, libc++abi, libunwind ---
     # Static, over picolibc (which libc++ treats as newlib) and the NBT
