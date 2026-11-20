@@ -15,8 +15,8 @@ Built by NBTFoundry from LLVM and picolibc sources; not an LLVM release.
   `-objcopy`, `-strip`, `-objdump`, `-readobj`, `-readelf`, `-size`,
   `-symbolizer`, `-addr2line`, `-cxxfilt`. Their only target is ARM.
 - `armv7a-nbt/include/`: the NBT C library headers (threads, semaphores, the
-  bridge's sockets, directories, anonymous and executable memory mappings),
-  implemented by the SDK's module runtime.
+  bridge's sockets, directories, anonymous and executable memory mappings,
+  ARM CPU feature bits), implemented by the SDK's module runtime.
 - `armv7a-nbt/aligned/` and `armv7a-nbt/unaligned/`: picolibc, compiler-rt
   builtins (with emulated TLS; `__clear_cache` comes from the SDK's module
   runtime) and libc++, libc++abi and libunwind, built with

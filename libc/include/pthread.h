@@ -56,6 +56,12 @@ typedef struct {
 #define PTHREAD_CREATE_JOINABLE 0
 #define PTHREAD_CREATE_DETACHED 1
 
+/* Threads take the application's scheduling: the policy and priority
+ * attributes are accepted and, as POSIX has it under PTHREAD_INHERIT_SCHED,
+ * unused; PTHREAD_EXPLICIT_SCHED is refused (ENOTSUP). */
+#define PTHREAD_INHERIT_SCHED 0
+#define PTHREAD_EXPLICIT_SCHED 1
+
 #define PTHREAD_MUTEX_INITIALIZER {0, PTHREAD_MUTEX_NORMAL, 0, 0}
 #define PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP {0, PTHREAD_MUTEX_RECURSIVE, 0, 0}
 #define PTHREAD_COND_INITIALIZER {0, 0}
@@ -70,6 +76,12 @@ int pthread_attr_setstacksize(pthread_attr_t* attr, size_t size);
 int pthread_attr_getstacksize(const pthread_attr_t* attr, size_t* size);
 int pthread_attr_setdetachstate(pthread_attr_t* attr, int state);
 int pthread_attr_getdetachstate(const pthread_attr_t* attr, int* state);
+int pthread_attr_setinheritsched(pthread_attr_t* attr, int inherit);
+int pthread_attr_getinheritsched(const pthread_attr_t* attr, int* inherit);
+int pthread_attr_setschedpolicy(pthread_attr_t* attr, int policy);
+int pthread_attr_getschedpolicy(const pthread_attr_t* attr, int* policy);
+int pthread_attr_setschedparam(pthread_attr_t* attr, const struct sched_param* param);
+int pthread_attr_getschedparam(const pthread_attr_t* attr, struct sched_param* param);
 
 int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*fn)(void*), void* arg);
 int pthread_join(pthread_t thread, void** result);
