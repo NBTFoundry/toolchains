@@ -41,7 +41,9 @@ variant() {
     W=$WORK/$1
     rm -rf "$V" "$W"
     mkdir -p "$V" "$W"
-    FLAGS="$ARCH $2 -fPIC -ffunction-sections -fdata-sections"
+    # Source paths (compiler-rt's aborts name their file) relative to the
+    # checkout, so the runtime is the same wherever it is built.
+    FLAGS="$ARCH $2 -fPIC -ffunction-sections -fdata-sections -ffile-prefix-map=$ROOT/="
     LIBC_INC="-nostdlibinc -isystem $OUT/include -isystem $V/picolibc/include"
 
     cat > "$V/target.mk" <<EOF

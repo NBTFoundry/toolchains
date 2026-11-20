@@ -149,10 +149,17 @@ jobs:
             esac
           done
       - run: MAKE=${{ matrix.make }} scripts/test-sdk.sh out/toolchain/nbt-toolchain-$(cat VERSION) tests/sdk out/test
-      - uses: actions/upload-artifact@v4
+      # The payloads too, to see what differs when they do.
+      - if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: payloads-${{ matrix.host }}
-          path: out/test/payloads.sha256
+          path: |
+            out/test/payloads.sha256
+            out/test/*/*.so
+            out/test/*/*.guest
+            out/test/*/*.map
+          retention-days: 7
 
   identical:
     needs: test

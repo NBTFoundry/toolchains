@@ -36,6 +36,7 @@ done
 
 cd "$OUT"
 if command -v sha256sum >/dev/null 2>&1; then sum="sha256sum"; else sum="shasum -a 256"; fi
+# (MSYS2's sha256sum marks binary mode with "*")
 # shellcheck disable=SC2086
-$sum aligned/*.so aligned/*.guest unaligned/*.so unaligned/*.guest > payloads.sha256
+$sum aligned/*.so aligned/*.guest unaligned/*.so unaligned/*.guest | sed 's/ \*/  /' > payloads.sha256
 cat payloads.sha256
