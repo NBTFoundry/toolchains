@@ -1,0 +1,67 @@
+/* SPDX-License-Identifier: MPL-2.0 */
+/* NBT toolchain, QNX 6.5 target: implementation limits. The integer limits
+ * come from the compiler's own limits.h; these are the system's. */
+#ifndef _NBT_QNX_LIMITS_H
+#define _NBT_QNX_LIMITS_H
+
+#include_next <limits.h>
+
+#define _POSIX_ARG_MAX 4096
+#define _POSIX_CHILD_MAX 25
+#define _POSIX_LINK_MAX 8
+#define _POSIX_MAX_CANON 255
+#define _POSIX_MAX_INPUT 255
+#define _POSIX_NAME_MAX 14
+#define _POSIX_NGROUPS_MAX 8
+#define _POSIX_OPEN_MAX 20
+#define _POSIX_PATH_MAX 256
+#define _POSIX_PIPE_BUF 512
+#define _POSIX_SSIZE_MAX 32767
+#define _POSIX_STREAM_MAX 8
+#define _POSIX_TZNAME_MAX 6
+#define _POSIX_HOST_NAME_MAX 255
+#define _POSIX_SYMLOOP_MAX 8
+#define _POSIX_THREAD_DESTRUCTOR_ITERATIONS 4
+#define _POSIX_THREAD_KEYS_MAX 128
+#define _POSIX_THREAD_THREADS_MAX 64
+#define _POSIX_TTY_NAME_MAX 9
+#define _POSIX_TIMER_MAX 32
+#define _POSIX_RTSIG_MAX 8
+#define _POSIX_SIGQUEUE_MAX 32
+#define _POSIX_SEM_NSEMS_MAX 256
+#define _POSIX_SEM_VALUE_MAX 32767
+#define _POSIX_CLOCKRES_MIN 20000000
+#define _XOPEN_IOV_MAX 16
+
+#define NGROUPS_MAX 8
+#define ARG_MAX 61440
+#define TZNAME_MAX 30
+#define DELAYTIMER_MAX (1 << 20)
+#define SEM_VALUE_MAX (INT_MAX / 2)
+#define PTHREAD_DESTRUCTOR_ITERATIONS _POSIX_THREAD_DESTRUCTOR_ITERATIONS
+#define PTHREAD_KEYS_MAX _POSIX_THREAD_KEYS_MAX
+#define PTHREAD_STACK_MIN 256
+#define TTY_NAME_MAX 32
+#define LOGIN_NAME_MAX 256
+#define LINK_MAX 65535u
+#define PIPE_BUF 5120
+#define LINE_MAX 2048
+#define RE_DUP_MAX 255
+#define NAME_MAX 255
+#define PATH_MAX 1024
+#define SSIZE_MAX INT_MAX
+#define ATEXIT_MAX 32
+#define IOV_MAX 1024
+#define NZERO 20
+#define SYMLOOP_MAX 16
+#define HOST_NAME_MAX 255
+#define CHARCLASS_NAME_MAX 14
+#define NL_ARGMAX 9
+#define NL_LANGMAX 14
+#define NL_MSGMAX 32767
+#define NL_SETMAX 255
+#define LONGLONG_MIN LLONG_MIN
+#define LONGLONG_MAX LLONG_MAX
+#define ULONGLONG_MAX ULLONG_MAX
+
+#endif

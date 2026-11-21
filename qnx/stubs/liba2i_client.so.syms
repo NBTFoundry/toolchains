@@ -1,0 +1,36 @@
+# liba2i_client.so: exported symbols (names and sizes), for link stubs
+F A2I_Client_Close
+F A2I_Client_GetBuffer
+F A2I_Client_GetDeviceInformation
+F A2I_Client_GetErrorDescription
+F A2I_Client_GetNotification
+F A2I_Client_GetNotification_AllBuffer
+F A2I_Client_GetSampleRateTransferFlag
+F A2I_Client_Open
+F A2I_Client_Out_Drain
+F A2I_Client_Out_Flush
+F A2I_Client_Out_GetEvent
+F A2I_Client_Out_GetPosition
+F A2I_Client_Out_Pause
+F A2I_Client_Out_Resume
+F A2I_Client_Out_Write
+F A2I_Client_SetVerbose
+F A2I_Client_Start
+F A2I_Client_Stop
+O _QNX_info_a2i_client 256
+F __aeabi_uidiv
+F __aeabi_uidivmod
+F __data_start
+F __div0
+F __udivsi3
+O _a2i_client_conf 12
+F _btext
+F _fini
+F _init
+F _stack
+O error_strings 96
+F slogb
+F slogf
+F slogi
+O sr_mapping_array 128
+F vslogf

@@ -1,0 +1,61 @@
+# libEGL.so.1: exported symbols (names and sizes), for link stubs
+F __data_start
+F __eglLoadGLES1FunctionTable
+F __eglLoadGLES2FunctionTable
+F __eglLoadVGFunctionTable
+F __eglUnloadGLES1FunctionTable
+F __eglUnloadGLES2FunctionTable
+F __eglUnloadVGFunctionTable
+F __khrGetConfigValue
+F __khrGetDisplayConfigValue
+F __khrGetDisplayFramebuffers
+F __khrGetLayerConfigValue
+F __khrLoadLibraryString
+F __khrOpenGraphicsConf
+F __khrOpenWinmgrConf
+F _btext
+O _egl_fntbl 4
+O _egl_fntbl_allocated 4
+O _egl_handle 4
+F _fini
+O _gles1_cm_fntbl 4
+O _gles1_fntbl 4
+O _gles2_fntbl 4
+F _init
+F _stack
+O _vg_fntbl 4
+F eglBindAPI
+F eglBindTexImage
+F eglChooseConfig
+F eglCopyBuffers
+F eglCreateContext
+F eglCreatePbufferFromClientBuffer
+F eglCreatePbufferSurface
+F eglCreatePixmapSurface
+F eglCreateWindowSurface
+F eglDestroyContext
+F eglDestroySurface
+F eglGetConfigAttrib
+F eglGetConfigs
+F eglGetCurrentContext
+F eglGetCurrentDisplay
+F eglGetCurrentSurface
+F eglGetDisplay
+F eglGetError
+F eglGetProcAddress
+F eglInitialize
+F eglMakeCurrent
+F eglQueryAPI
+F eglQueryContext
+F eglQueryString
+F eglQuerySurface
+F eglReleaseTexImage
+F eglReleaseThread
+F eglSurfaceAttrib
+F eglSwapBuffers
+F eglSwapInterval
+F eglTerminate
+F eglWaitClient
+F eglWaitGL
+F eglWaitNative
+O egl_disp_list 4
