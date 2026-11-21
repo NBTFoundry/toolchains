@@ -97,6 +97,8 @@ char *itoa(int __value, char *__buf, int __radix);
 char *ltoa(long __value, char *__buf, int __radix);
 char *ultoa(unsigned long __value, char *__buf, int __radix);
 char *utoa(unsigned __value, char *__buf, int __radix);
+/* QNX's stdlib.h brings process.h's _cmdname() too. */
+char *_cmdname(char *__buf);
 __END_DECLS
 
 #ifdef __GNUC__
