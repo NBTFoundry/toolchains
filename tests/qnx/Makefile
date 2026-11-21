@@ -4,9 +4,9 @@
 # Run $(OUT)/qnx-probe-bundle in the QNX 6.5 VM or on the car: it prints
 # "qnx-probe: PASS". (The "-bundle" suffix keeps the VM's image builder from
 # rewriting it.)
+HERE := $(dir $(lastword $(MAKEFILE_LIST)))
 NBT_QNX := $(NBT_TOOLCHAIN)/armv7a-nbt/qnx
 include $(NBT_QNX)/target.mk
-HERE := $(dir $(lastword $(MAKEFILE_LIST)))
 OUT ?= .
 
 $(OUT)/qnx-probe-bundle: $(OUT)/probe.o
