@@ -4,7 +4,11 @@ The NBT toolchain: Clang/LLD and the target runtime for NBT modules and guests
 (README.md). Releases are consumed by NBTFoundry/sdk, which pins a version.
 
 - Keep every QNX file out: no SDP header, library or tool, here or in a
-  release. GPL code must not enter the runtime.
+  release. GPL code must not enter the runtime. The QNX target (`qnx/`) is
+  written for this toolchain: headers stating the car's layouts, constants
+  and prototypes, link stub lists of symbol names and sizes only. Check
+  header changes with `make check-qnx-abi` (needs the SDP locally; never in
+  CI or a build).
 - The ABI is fixed by `scripts/build-runtime.sh` (target flags, written to
   `target.mk`) and `libc/include/` (types the SDK's module runtime shares
   with libc++). Changing either needs the matching SDK change and a new

@@ -98,8 +98,6 @@ int putchar_unlocked(int __c);
 FILE *popen(const char *__command, const char *__mode);
 int pclose(FILE *__fp);
 char *tempnam(const char *__dir, const char *__pfx);
-int getw(FILE *__fp);
-int putw(int __w, FILE *__fp);
 int fgetchar(void);
 int fputchar(int __c);
 __END_DECLS

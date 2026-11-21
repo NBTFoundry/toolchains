@@ -10,3 +10,6 @@
 	path = tests/sdk
 	url = git@github.com:NBTFoundry/sdk.git
 	shallow = true
+[submodule "third_party/openssl"]
+	path = third_party/openssl
+	url = git@github.com:openssl/openssl.git

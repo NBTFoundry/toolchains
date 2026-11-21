@@ -8,7 +8,15 @@ release per version, for Linux x86-64, macOS arm64 and Windows x86-64. What a
 release contains, and its licences: [docs/usage.md](docs/usage.md), which
 ships in every archive as its README.
 
-Nothing here comes from QNX: the runtime only meets QNX through the runner.
+It also has a QNX 6.5 target: ordinary programs for the head unit (an
+application that must stay a native QNX program, such as a daemon that loads
+the car's own libraries), built without the QNX SDP and linked at run time
+against the car's libraries.
+
+Nothing here comes from QNX: the module and guest runtime only meets QNX
+through the runner, and the QNX target's headers, startup file and link stubs
+are written for this toolchain from the car's ABI (layouts, constants, symbol
+names).
 
 ## Layout
 
@@ -20,10 +28,25 @@ Nothing here comes from QNX: the runtime only meets QNX through the runner.
 - `scripts/build-runtime.sh`: the target runtime, once for every host, in two
   variants (strict alignment and unaligned accesses), each with the
   `target.mk` the SDK compiles with.
+- `qnx/`: the QNX 6.5 target. `include/` the headers (the car's C library
+  and QNX interfaces), `crt/crt1.S` the program entry, `stubs/*.syms` the
+  symbols the car's shared libraries export (names and sizes, for link
+  stubs), `libc/` functions QNX programs normally link statically.
+- `scripts/build-qnx.sh`: the QNX target (stubs, `crt1.o`, `libnbtqnx.a`,
+  builtins, libc++ over `qnx/include`, OpenSSL's headers, `target.mk`).
+- `scripts/qnx-stubs.py`: builds the link stubs; `extract` rewrites the
+  lists from copies of the car's libraries.
+- `scripts/check-qnx-abi.py` (`make check-qnx-abi QNX_ENV=...`): for
+  maintainers with the QNX 6.5 SP1 SDP, compares every layout, constant and
+  prototype of `qnx/include` with the SDP's headers. It must report no
+  difference; no build needs the SDP.
+- `tests/qnx/`: a C++ probe (exceptions, threads, the C library); run it in
+  the SDK's QNX 6.5 VM (`tools/qnx65-vm/run.sh`) or on the car.
 - `scripts/package.py`: one host's archive, reproducibly.
 - `scripts/test-sdk.sh`: builds the SDK's test payloads with a packaged
   toolchain (`tests/sdk`, a submodule pinned to an SDK commit).
-- `third_party/`: LLVM and picolibc, as shallow submodules.
+- `third_party/`: LLVM, picolibc and OpenSSL 1.0.1l (headers only, the
+  car's version), as shallow submodules.
 
 ## Building
 
@@ -55,7 +78,8 @@ every test passes. Then, in the SDK, set `NBT_TOOLCHAIN_VERSION` in
 `module/toolchain.sha256`: `make toolchain` installs only what it pins.
 
 A change to `libc/include/` changes what the SDK's module runtime must
-implement: release it with the matching SDK change.
+implement: release it with the matching SDK change. A change to
+`qnx/include/` passes `make check-qnx-abi` before it is merged.
 
 ## Not yet
 

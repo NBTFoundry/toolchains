@@ -50,7 +50,6 @@ char *ctime_r(const time_t *__timer, char *__buf);
 struct tm *gmtime_r(const time_t *__restrict __timer, struct tm *__restrict __tm);
 struct tm *localtime_r(const time_t *__restrict __timer, struct tm *__restrict __tm);
 void tzset(void);
-char *strptime(const char *__restrict __buf, const char *__restrict __fmt, struct tm *__restrict __tm);
 
 int clock_getres(clockid_t __clock_id, struct timespec *__res);
 int clock_gettime(clockid_t __clock_id, struct timespec *__tp);

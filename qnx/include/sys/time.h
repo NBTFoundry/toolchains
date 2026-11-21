@@ -5,12 +5,7 @@
 
 #include <sys/_typedefs.h>
 #include <time.h>
-#include <sys/select.h>
-
-struct timeval {
-	time_t tv_sec;
-	suseconds_t tv_usec;
-};
+#include <sys/select.h> /* struct timeval */
 
 struct itimerval {
 	struct timeval it_interval;

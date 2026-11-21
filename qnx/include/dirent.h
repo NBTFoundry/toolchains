@@ -41,9 +41,6 @@ int readdir_r(DIR *__restrict __dir, struct dirent *__restrict __entry, struct d
 void rewinddir(DIR *__dir);
 void seekdir(DIR *__dir, long __pos);
 long telldir(DIR *__dir);
-int alphasort(const void *__a, const void *__b);
-int scandir(char *__dir, struct dirent ***__namelist, int (*__select)(const struct dirent *),
-	    int (*__compar)(const void *, const void *));
 int dircntl(DIR *__dir, int __cmd, ...);
 __END_DECLS
 

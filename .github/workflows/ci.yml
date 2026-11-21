@@ -70,12 +70,14 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - run: scripts/ci-fetch.sh third_party/llvm-project third_party/picolibc
+      - run: scripts/ci-fetch.sh third_party/llvm-project third_party/picolibc third_party/openssl
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: llvm-linux-x86_64
       - run: mkdir -p out && tar -xf llvm-linux-x86_64.tar -C out
       - run: scripts/linux-run.sh scripts/build-runtime.sh out/llvm-linux-x86_64/bin out/runtime-build out/runtime
+      # The QNX 6.5 target: headers, link stubs, crt1, libc++ for ordinary programs.
+      - run: scripts/linux-run.sh scripts/build-qnx.sh out/llvm-linux-x86_64/bin out/runtime-build out/runtime
       - run: tar -cf runtime.tar -C out runtime
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
@@ -88,7 +90,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - run: scripts/ci-fetch.sh third_party/llvm-project third_party/picolibc
+      - run: scripts/ci-fetch.sh third_party/llvm-project third_party/picolibc third_party/openssl
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           path: artifacts
@@ -149,6 +151,13 @@ jobs:
             esac
           done
       - run: MAKE=${{ matrix.make }} scripts/test-sdk.sh out/toolchain/nbt-toolchain-$(cat VERSION) tests/sdk out/test
+      # The QNX target's probe: built on every host, the same bytes.
+      - run: |
+          ${{ matrix.make }} -f tests/qnx/Makefile NBT_TOOLCHAIN="$PWD/out/toolchain/nbt-toolchain-$(cat VERSION)" \
+            OUT="$PWD/out/test/qnx"
+          cd out/test
+          if command -v sha256sum >/dev/null 2>&1; then sum="sha256sum"; else sum="shasum -a 256"; fi
+          $sum qnx/qnx-probe-bundle | sed 's/ \*/  /' >> payloads.sha256
       # The payloads too, to see what differs when they do.
       - if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -159,6 +168,7 @@ jobs:
             out/test/*/*.so
             out/test/*/*.guest
             out/test/*/*.map
+            out/test/qnx/qnx-probe-bundle
           retention-days: 7
 
   identical:
@@ -198,7 +208,7 @@ jobs:
           cd dist
           cat *.sha256 > SHA256SUMS
           {
-            echo "Clang and LLD for NBT modules and guests, with their runtime. Hosts: Linux x86-64"
+            echo "Clang and LLD for NBT modules, guests and QNX 6.5 programs, with their runtimes. Hosts: Linux x86-64"
             echo "(glibc 2.28 or newer), macOS 11 or newer on Apple silicon, Windows x86-64."
             echo "The SDK's \`make toolchain\` installs the version it is pinned to."
             echo

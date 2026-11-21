@@ -26,6 +26,7 @@ import zipfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LLVM_SRC = os.path.join(ROOT, "third_party", "llvm-project")
 PICOLIBC_SRC = os.path.join(ROOT, "third_party", "picolibc")
+OPENSSL_SRC = os.path.join(ROOT, "third_party", "openssl")
 
 HOSTS = ("linux-x86_64", "macos-arm64", "windows-x86_64")
 # The host tools NBT builds use (cmake/llvm.cmake); the rest of bin/ is left out.
@@ -39,6 +40,7 @@ LICENSES = [(LLVM_SRC, "llvm-project", p) for p in (
     "libcxx/LICENSE.TXT", "libcxxabi/LICENSE.TXT", "libunwind/LICENSE.TXT",
     "llvm/include/llvm/Support/LICENSE.TXT", "llvm/lib/Support/BLAKE3/LICENSE")] + \
     [(PICOLIBC_SRC, "picolibc", p) for p in ("COPYING.picolibc", "COPYING.NEWLIB")] + \
+    [(OPENSSL_SRC, "openssl", "LICENSE")] + \
     [(ROOT, "nbt-toolchain", "LICENSE")]
 
 
@@ -57,8 +59,11 @@ def components():
                           r"^\s*set\(LLVM_VERSION_(?:MAJOR|MINOR|PATCH) (\d+)\)")
     picolibc = source_version(os.path.join(PICOLIBC_SRC, "meson.build"),
                               r"^\s*version\s*:\s*'([\d.]+)'")
+    with open(os.path.join(OPENSSL_SRC, "crypto", "opensslv.h"), encoding="utf-8") as f:
+        openssl = re.findall(r'^#\s*define OPENSSL_VERSION_TEXT\s+"OpenSSL ([^ ]+) ', f.read(), re.M)[-1]
     return [("llvm", llvm, git("rev-parse", "HEAD:third_party/llvm-project")),
-            ("picolibc", picolibc, git("rev-parse", "HEAD:third_party/picolibc"))]
+            ("picolibc", picolibc, git("rev-parse", "HEAD:third_party/picolibc")),
+            ("openssl-headers", openssl, git("rev-parse", "HEAD:third_party/openssl"))]
 
 
 def copy_tools(src_bin, dst_bin):

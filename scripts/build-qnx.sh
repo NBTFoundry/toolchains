@@ -38,10 +38,29 @@ rm -rf "$OUT" "$WORK"
 mkdir -p "$OUT/lib" "$WORK"
 cp -R "$ROOT/qnx/include" "$OUT/include"
 
+# --- the headers of the car's OpenSSL (libssl.so.2, libcrypto.so.2: 1.0.1l),
+# from its source (third_party/openssl), configured for 32-bit ARM ---
+mkdir -p "$WORK/openssl"
+cp -R "$ROOT/third_party/openssl/." "$WORK/openssl"
+rm -rf "$WORK/openssl/.git"
+(cd "$WORK/openssl" && ./Configure linux-armv4 no-asm no-shared >/dev/null && make links >/dev/null)
+mkdir -p "$OUT/include/openssl"
+cp -L "$WORK/openssl/include/openssl/"*.h "$OUT/include/openssl/"
+
 # --- startup and link stubs ---
 # shellcheck disable=SC2086
 "$LLVM_BIN/clang" --target=$TRIPLE $ARCH -c "$ROOT/qnx/crt/crt1.S" -o "$OUT/lib/crt1.o"
 python3 "$ROOT/scripts/qnx-stubs.py" build --lists "$ROOT/qnx/stubs" --llvm-bin "$LLVM_BIN" --out "$OUT/lib"
+
+# --- libnbtqnx.a: C library functions QNX programs link statically (the
+# car's libc.so.3 lacks them), written for this target (qnx/libc) ---
+mkdir -p "$WORK/libnbtqnx"
+for src in "$ROOT"/qnx/libc/*.c; do
+    # shellcheck disable=SC2086
+    "$LLVM_BIN/clang" --target=$TRIPLE $FLAGS $DEFS $INC -O2 -std=gnu11 -Wall -Wextra -Werror \
+        -c "$src" -o "$WORK/libnbtqnx/$(basename "$src" .c).o"
+done
+"$LLVM_BIN/llvm-ar" rcs "$OUT/lib/libnbtqnx.a" "$WORK"/libnbtqnx/*.o
 
 CMAKE_TOOLS="-DCMAKE_C_COMPILER=$LLVM_BIN/clang -DCMAKE_CXX_COMPILER=$LLVM_BIN/clang++
     -DCMAKE_ASM_COMPILER=$LLVM_BIN/clang -DCMAKE_AR=$LLVM_BIN/llvm-ar -DCMAKE_NM=$LLVM_BIN/llvm-nm
@@ -103,11 +122,12 @@ NBT_QNX_DEFS := $DEFS
 NBT_QNX_CFLAGS = \$(NBT_QNX_ARCH) \$(NBT_QNX_CODEGEN) \$(NBT_QNX_DEFS) -nostdlibinc -isystem \$(NBT_QNX)/include
 NBT_QNX_CXXFLAGS = \$(NBT_QNX_ARCH) \$(NBT_QNX_CODEGEN) \$(NBT_QNX_DEFS) -nostdlibinc \\
 	-isystem \$(NBT_QNX)/cxx/include/c++/v1 -isystem \$(NBT_QNX)/include
-# --no-rosegment: QNX 6.5's loader wants the text segment first.
-NBT_QNX_LDFLAGS = --dynamic-linker=/usr/lib/ldqnx.so.2 --no-rosegment --hash-style=both -z norelro \\
+# --no-rosegment: QNX 6.5's loader wants the text segment first; it reads
+# DT_RPATH, not DT_RUNPATH (-rpath DIR adds one).
+NBT_QNX_LDFLAGS = --dynamic-linker=/usr/lib/ldqnx.so.2 --no-rosegment --disable-new-dtags --hash-style=both -z norelro \\
 	-z max-page-size=4096 --image-base=0x100000 --eh-frame-hdr -e _start --gc-sections --build-id \\
 	--target2=got-rel -L\$(NBT_QNX)/lib \$(NBT_QNX)/lib/crt1.o
 NBT_QNX_LDLIBS = \$(NBT_QNX)/cxx/lib/libc++.a \$(NBT_QNX)/cxx/lib/libc++abi.a \$(NBT_QNX)/cxx/lib/libunwind.a \\
-	-lc \$(NBT_QNX)/lib/libclang_rt.builtins.a
+	\$(NBT_QNX)/lib/libnbtqnx.a -lc \$(NBT_QNX)/lib/libclang_rt.builtins.a
 EOF
 echo "qnx target: $OUT"

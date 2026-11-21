@@ -20,7 +20,10 @@ typedef struct fd_set {
 #define FD_ISSET(fd, p) ((p)->fds_bits[(fd) / __NFDBITS] & (1 << ((fd) % __NFDBITS)))
 #define FD_ZERO(p) __builtin_memset((p), 0, sizeof *(p))
 
-struct timeval;
+struct timeval {
+	time_t tv_sec;
+	suseconds_t tv_usec;
+};
 
 __BEGIN_DECLS
 int select(int __nfds, fd_set *__readfds, fd_set *__writefds, fd_set *__errorfds, struct timeval *__timeout);

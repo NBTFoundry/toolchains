@@ -41,12 +41,36 @@
 #define USBD_TIME_DEFAULT 0x00000000
 #define USBD_TIME_INFINITY 0xFFFFFFFF
 
-/* Descriptor types, as in the USB specification. */
+/* USB 1.1 definitions: descriptor types, endpoints and request types, as in
+ * the USB specification. */
+#define USB_VERSION 0x0110
 #define USB_DESC_DEVICE 0x01
 #define USB_DESC_CONFIGURATION 0x02
 #define USB_DESC_STRING 0x03
 #define USB_DESC_INTERFACE 0x04
 #define USB_DESC_ENDPOINT 0x05
+#define USB_DESC_DEVICE_QUALIFIER 0x06
+#define USB_DESC_OTHER_SPEED_CONF 0x07
+#define USB_DESC_INTERFACE_POWER 0x08
+#define USB_DESC_HID 0x21
+#define USB_DESC_REPORT 0x22
+#define USB_ENDPOINT_CONTROL 0
+#define USB_ENDPOINT_MASK 0x0F
+#define USB_ENDPOINT_IN 0x80
+#define USB_ENDPOINT_OUT 0x00
+#define USB_ATTRIB_CONTROL 0x00
+#define USB_ATTRIB_ISOCHRONOUS 0x01
+#define USB_ATTRIB_BULK 0x02
+#define USB_ATTRIB_INTERRUPT 0x03
+#define USB_RECIPIENT_DEVICE (0 << 0)
+#define USB_RECIPIENT_INTERFACE (1 << 0)
+#define USB_RECIPIENT_ENDPOINT (2 << 0)
+#define USB_RECIPIENT_OTHER (3 << 0)
+#define USB_TYPE_STANDARD (0 << 5)
+#define USB_TYPE_CLASS (1 << 5)
+#define USB_TYPE_VENDOR (2 << 5)
+#define USB_DIRECTION_DEVICE (0 << 7)
+#define USB_DIRECTION_HOST (1 << 7)
 
 struct usbd_connection;
 struct usbd_desc_node;
