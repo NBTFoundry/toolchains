@@ -14,7 +14,6 @@ typedef double double_t;
 #define HUGE_VALL (__builtin_huge_vall())
 #define INFINITY (__builtin_inff())
 #define NAN (__builtin_nanf(""))
-#define HUGE 3.40282347e+38F
 #define MAXFLOAT 3.40282347e+38F
 
 #define FP_NAN 2
@@ -23,10 +22,10 @@ typedef double double_t;
 #define FP_SUBNORMAL (-2)
 #define FP_NORMAL (-1)
 #define FP_ILOGB0 (-2147483647 - 1)
-#define FP_ILOGBNAN (-2147483647 - 1)
+#define FP_ILOGBNAN 2147483647
 #define MATH_ERRNO 1
 #define MATH_ERREXCEPT 2
-#define math_errhandling MATH_ERRNO
+#define math_errhandling (MATH_ERRNO | MATH_ERREXCEPT)
 
 #define fpclassify(x) __builtin_fpclassify(FP_NAN, FP_INFINITE, FP_NORMAL, FP_SUBNORMAL, FP_ZERO, x)
 #define isfinite(x) __builtin_isfinite(x)

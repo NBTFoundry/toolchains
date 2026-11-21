@@ -22,7 +22,7 @@ typedef _Fpost fpos_t;
 #define SEEK_END 2
 #define TMP_MAX (26 * 26 * 26)
 #define L_tmpnam 255
-#define L_ctermid 255
+#define L_ctermid 16
 #define P_tmpdir "/tmp/"
 
 __BEGIN_DECLS

@@ -51,10 +51,7 @@
 #define PATH_MAX 1024
 #define SSIZE_MAX INT_MAX
 #define ATEXIT_MAX 32
-#define IOV_MAX 1024
-#define NZERO 20
 #define SYMLOOP_MAX 16
-#define HOST_NAME_MAX 255
 #define CHARCLASS_NAME_MAX 14
 #define NL_ARGMAX 9
 #define NL_LANGMAX 14
