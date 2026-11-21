@@ -89,4 +89,11 @@ _fini:	bx	lr
 	.asciz	"QNX"
 	.word	0, 0x100000
 
+/* The loader, here rather than as --dynamic-linker=/usr/lib/...: MSYS2
+ * rewrites that argument into a Windows path when make runs ld.lld.exe.
+ * lld makes PT_INTERP from a section of this name; "R" keeps it from
+ * --gc-sections, as nothing refers to it. */
+	.section .interp, "aR", %progbits
+	.asciz	"/usr/lib/ldqnx.so.2"
+
 	.section .note.GNU-stack, "", %progbits

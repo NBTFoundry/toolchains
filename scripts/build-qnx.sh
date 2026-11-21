@@ -123,8 +123,9 @@ NBT_QNX_CFLAGS = \$(NBT_QNX_ARCH) \$(NBT_QNX_CODEGEN) \$(NBT_QNX_DEFS) -nostdlib
 NBT_QNX_CXXFLAGS = \$(NBT_QNX_ARCH) \$(NBT_QNX_CODEGEN) \$(NBT_QNX_DEFS) -nostdlibinc \\
 	-isystem \$(NBT_QNX)/cxx/include/c++/v1 -isystem \$(NBT_QNX)/include
 # --no-rosegment: QNX 6.5's loader wants the text segment first; it reads
-# DT_RPATH, not DT_RUNPATH (-rpath DIR adds one).
-NBT_QNX_LDFLAGS = --dynamic-linker=/usr/lib/ldqnx.so.2 --no-rosegment --disable-new-dtags --hash-style=both -z norelro \\
+# DT_RPATH, not DT_RUNPATH (-rpath DIR adds one). crt1.o names the loader
+# (/usr/lib/ldqnx.so.2) in its .interp section.
+NBT_QNX_LDFLAGS = --no-rosegment --disable-new-dtags --hash-style=both -z norelro \\
 	-z max-page-size=4096 --image-base=0x100000 --eh-frame-hdr -e _start --gc-sections --build-id \\
 	--target2=got-rel -L\$(NBT_QNX)/lib \$(NBT_QNX)/lib/crt1.o
 NBT_QNX_LDLIBS = \$(NBT_QNX)/cxx/lib/libc++.a \$(NBT_QNX)/cxx/lib/libc++abi.a \$(NBT_QNX)/cxx/lib/libunwind.a \\
