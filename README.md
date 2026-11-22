@@ -18,6 +18,9 @@ through the runner, and the QNX target's headers, startup file and link stubs
 are written for this toolchain from the car's ABI (layouts, constants, symbol
 names).
 
+Not affiliated with or endorsed by BlackBerry Limited or BMW AG. QNX is a
+trademark of BlackBerry Limited; BMW and NBT are trademarks of BMW AG.
+
 ## Layout
 
 - `cmake/llvm.cmake`: how Clang and LLD are configured.

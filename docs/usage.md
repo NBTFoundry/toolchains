@@ -53,6 +53,9 @@ Built by NBTFoundry from LLVM and picolibc sources; not an LLVM release.
 - OpenSSL's headers: the OpenSSL and SSLeay licences
   (`share/licenses/openssl/`).
 
+Not affiliated with or endorsed by BlackBerry Limited or BMW AG. QNX is a
+trademark of BlackBerry Limited; BMW and NBT are trademarks of BMW AG.
+
 ## Hosts
 
 Linux x86-64 with glibc 2.28 or newer, macOS 11 or newer on Apple silicon,
